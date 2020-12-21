@@ -117,6 +117,7 @@ router.post("/sendmail",async(req,res,next)=>{
           })
           
           ///
+          /*
           transporter.sendMail(mailOptions, async function(error, info){
             if (error) {
               console.log(error);
@@ -124,7 +125,7 @@ router.post("/sendmail",async(req,res,next)=>{
 
             } else {
               console.log('Email sent: ' + info.response);
-              /*
+              
               await Inquiry.create({
                 user    :uid,
                 car     :cid,
@@ -134,9 +135,10 @@ router.post("/sendmail",async(req,res,next)=>{
               res.status(200).json({
                 result:true
               })
-              */
+              
             }
           });
+          */
           
     }catch(err){
         console.log(err)
