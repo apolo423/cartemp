@@ -5,8 +5,8 @@ const fs = require('fs');
 
 module.exports.generate = function(type,inquiry){
     let options = {
-        "height": "11.25in",
-        "width": "8.5in",
+        "height": "20in",
+        "width": "12in",
         "header": {
             "height": "20mm",
         },

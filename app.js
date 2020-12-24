@@ -14,6 +14,8 @@ const carsRoutes = require('./routes/cars');
 const authRouter = require('./routes/auth');
 const detailRouter = require('./routes/detail');
 const adminRouter = require('./routes/admin');
+const howtobuyRouter = require('./routes/howtobuy');
+
 
 const inquiryRouter = require('./routes/inquiry');
 const HttpError = require('./errors/HttpError');
@@ -63,7 +65,10 @@ app.use("/api/cars", carsRoutes)
 app.use("/api/auth", authRouter)
 app.use("/api/detail", detailRouter)
 app.use("/api/inquiry", inquiryRouter)
+app.use("/api/howtobuy", howtobuyRouter)
+
 app.use("/api/admin", adminRouter)
+
 
 app.post('/api/uploadfile',async function(req,res){
     console.log('uploadEntry')

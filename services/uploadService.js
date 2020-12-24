@@ -11,6 +11,9 @@ var storage = multer.diskStorage({
     if(mode == 'inquiry'){
         dest = path.join(`${dest}/inquiry/${req.query.inquiryId}`)
     }
+    if(mode == 'howto'){
+      dest = path.join(`${dest}/howto/`)
+    }
     
     if (!fs.existsSync(dest)) {
       

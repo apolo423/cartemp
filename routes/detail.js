@@ -105,40 +105,49 @@ router.post("/sendmail",async(req,res,next)=>{
 
           
           /** */
-          
-          await Inquiry.create({
-            user    :uid,
-            car     :cid,
-            state   :1
+          let existUserInquiry = await Inquiry.findOne({
+            user:uid,
+            car:cid
           })
-          await Car.updateOne({_id:cid},{invoiceState:1})
-          res.status(200).json({
-            result:true
-          })
-          
-          ///
-          /*
-          transporter.sendMail(mailOptions, async function(error, info){
-            if (error) {
-              console.log(error);
-              res.status(200).json({result:false})
-
-            } else {
-              console.log('Email sent: ' + info.response);
-              
+            if(!existUserInquiry){
               await Inquiry.create({
                 user    :uid,
                 car     :cid,
                 state   :1
               })
               await Car.updateOne({_id:cid},{invoiceState:1})
-              res.status(200).json({
-                result:true
-              })
-              
             }
-          });
-          */
+            
+            res.status(200).json({
+              result:true
+            })
+            
+            ///
+            /*
+            transporter.sendMail(mailOptions, async function(error, info){
+              if (error) {
+                console.log(error);
+                res.status(200).json({result:false})
+  
+              } else {
+                if(!existUserInquiry){
+                  await Inquiry.create({
+                    user    :uid,
+                    car     :cid,
+                    state   :1
+                  })
+                  await Car.updateOne({_id:cid},{invoiceState:1})
+                }
+                
+                res.status(200).json({
+                  result:true
+                })
+                
+              }
+            });
+            */
+          
+          
           
     }catch(err){
         console.log(err)

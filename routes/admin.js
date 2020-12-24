@@ -5,6 +5,15 @@ const ChatLog = require('../models/ChatLog');
 const Car = require('../models/Car');
 const InquiryDoc = require('../models/InquiryDoc');
 
+/***/
+const HowTo = require('../models/HowTo')
+const HowToItemGroup = require('../models/HowToItemGroup')
+const HowToItem = require('../models/HowToItem')
+const HowToItemTextItem = require('../models/HowToItemTextItem')
+const HowToItemImageItem = require('../models/HowToItemImageItem')
+const HowToItemType = require('../models/HowToItemType')
+/***/
+
 const generatePDF = require('../services/generatePDF');
 const { stat } = require('fs');
 const router = express.Router()
@@ -278,9 +287,7 @@ router.post("/deleteDoc",async(req,res,next)=>{
 })
 router.post("/editDoc",async(req,res,next)=>{
     try{
-        
         const { doc, state }  = req.body.param
-
         let updateDoc = await InquiryDoc.findOne({
             _id:doc._id
         })
@@ -294,6 +301,154 @@ router.post("/editDoc",async(req,res,next)=>{
         res.status(200).json({
             inquiryid:doc.inquiry,
             inquirydocs:inquirydoc,
+            result:true
+        })
+    }catch(err){
+        console.log(err)
+        res.status(200).json({result:false})
+    }
+})
+router.get('/getHowTo',async(req,res,next)=>{
+    try{
+        let totalNormalHowto = []
+        let normalHowto = await HowTo.find({type:1})
+        await Promise.all(normalHowto.map(async(normalitem,nindex)=>{
+            let howtoItem = await HowToItem.find({
+                howto:normalitem._id
+            })
+                let totalHowtoItem = []
+                await Promise.all(howtoItem.map(async(item,index)=>{
+                    let imageItem = await HowToItemImageItem.find({
+                        item:item._id
+                    })
+                    let txtItem = await HowToItemTextItem.find({
+                        item:item._id
+                    })
+                  
+                    totalHowtoItem.push({
+                        ...item._doc,
+                        imageItem:imageItem,
+                        txtItem:txtItem
+                    })
+                }))
+
+            normalHowto[nindex] = normalitem
+            totalNormalHowto.push({
+                ...normalitem._doc,
+                smallItem:[...totalHowtoItem]})
+  
+        }))
+        res.status(200).json({
+            normalHowto:totalNormalHowto,
+            result:true
+        })
+    }catch(err){
+        console.log(err)
+        res.status(200).json({result:false})
+    }
+})
+router.post('/saveHowToItem',async(req,res,next)=>{
+    try{
+        const { item }  = req.body.param
+        console.log(item)
+        if(item._id != -1){
+            await HowTo.deleteOne({_id:item._id})
+            let deleHowToItem = await HowToItem.find({howto:item._id})
+            /**delte text and image */
+            await HowToItem.deleteMany({howto:item._id})
+        }
+        let howto = await HowTo.create({
+            type:item.type,
+            title:item.title,
+            sort:item.sort
+        })
+        await Promise.all(item.smallItems.map(async(small,index)=>{
+            let smallItem = await HowToItem.create({
+                //type:0,//replace
+                howto:howto._id,
+                sort:0,//replace
+                title:small.title
+            })
+            //console.log(smallItem)
+            if(Array.isArray(small.textArray)){
+                await Promise.all(
+                    small.textArray.map(async(text,tindex)=>{
+                        //console.log(smallItem._id)
+                        let a = await HowToItemTextItem.create({
+                            item:smallItem._id,
+                            content:text,
+                            sort:0//replace
+                        })
+                        console.log(a)
+                    })
+                )
+            }
+            if(Array.isArray(small.imageArray)){
+                await Promise.all(
+                    small.imageArray.map(async(image,tindex)=>{
+                        //console.log(smallItem._id)
+                        let a = await HowToItemImageItem.create({
+                            item:smallItem._id,
+                            url:image.filename,
+                            sort:0//replace
+                        })
+                        console.log(a)
+                    })
+                )
+            }
+        }))
+        
+        let totalNormalHowto = []
+        let normalHowto = await HowTo.find({type:1})
+        await Promise.all(normalHowto.map(async(normalitem,nindex)=>{
+            let howtoItem = await HowToItem.find({
+                howto:normalitem._id
+            })
+                let totalHowtoItem = []
+                await Promise.all(howtoItem.map(async(item,index)=>{
+                    let imageItem = await HowToItemImageItem.find({
+                        item:item._id
+                    })
+                    let txtItem = await HowToItemTextItem.find({
+                        item:item._id
+                    })
+                  
+                    totalHowtoItem.push({
+                        ...item._doc,
+                        imageItem:imageItem,
+                        txtItem:txtItem
+                    })
+                }))
+
+            normalHowto[nindex] = normalitem
+            totalNormalHowto.push({
+                ...normalitem._doc,
+                smallItem:[...totalHowtoItem]})
+  
+        }))
+
+        res.status(200).json({
+            normalHowto:totalNormalHowto,
+            result:true
+        })
+    }catch(err){
+        console.log(err)
+        res.status(200).json({result:false})
+    }
+})
+
+router.post('/deleteHowToItem',async(req,res,next)=>{
+    try{
+        const { id }  = req.body.param
+        // console.log(item)
+        if(id != -1){
+            await HowTo.deleteOne({_id:id})
+            let deleHowToItem = await HowToItem.find({howto:id})
+            /**delte text and image */
+            await HowToItem.deleteMany({howto:id})
+        }
+        res.status(200).json({
+            id:id,
             result:true
         })
     }catch(err){

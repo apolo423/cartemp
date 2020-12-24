@@ -1,27 +1,475 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<style>
-table {
-  border-collapse: collapse;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    color: #343433;
 }
 
-table, th, td {
-  border: 1px solid black;
+/* invoice-wrapper css start  */
+.invoice-wrapper {
+	padding-top: 10px;
 }
-</style>
+.invoice-container {
+	max-width: 805px;
+	margin: 0 auto;
+	padding-left: 15px;
+	padding-right: 15px;
+}
+.logo {
+	display: block;
+	position: relative;
+}
+  .logo img {
+    max-width: 195px;
+  }
+  .fx-padding {
+    padding: 0;
+  }
+  .invoice-make-date {
+	display: block;
+	text-align: right;
+	font-weight: 500;
+	color: #6A6B6E;
+}
+  .invoice-number {
+	font-weight: bold;
+	color: #6A6B6E;
+	font-size: 22px;
+	text-transform: uppercase;
+	margin-bottom: 5px;
+}
+  .invoice-address-g-wrap {
+	display: flex;
+	margin-bottom: 15px;
+}
+.address {
+	flex: 0 0 50%;
+	max-width: 50%;
+	width: 100%;
+}
+.address.right {
+	padding-left: 15px;
+}
+.address p {
+	color: #6A6B6E;
+	font-size: 15px;
+	line-height: 21px;
+	font-weight: 500;
+}
+.portion-title {
+	color: #6A6B6E;
+	font-size: 16px;
+	border-bottom: 1px solid #6A6B6E;
+	display: inline-block;
+	padding-bottom: 1px;
+	margin-bottom: 10px;
+}
+.info-rw {
+	display: grid;
+	grid-template-columns: 150px auto;
+	margin-bottom: 0px;
+}
+.tb-heading-rw.rw-w span {
+	padding: 10px;
+	font-weight: ;
+	font-size: 15px;
+}
+.info-rw span {
+  color: #6A6B6E;
+  display: inline-block;
+  font-weight: 500;
+}
+.ref-table {
+  background-color: #DDEDF8;
+}
+.tb-heading-rw {
+    border-top: 2px solid #6A6B6E;
+}
+.t-body-rw {
+    border-top: 1px solid #6A6B6E;
+}
+.ref-table .rw-w {
+	display: flex;
+}
+.tb-heading-rw.rw-w span:first-child, .t-body-rw div:first-child {
+	flex: 0 0 18%;
+}
+  .tb-heading-rw.rw-w span:nth-child(2),
+  .t-body-rw div:nth-child(2) {
+    width: 45%;
+  }
+  .tb-heading-rw.rw-w span:nth-child(3), .t-body-rw div:nth-child(3) {
+	width: 37%;
+}
+  .ref-table .rw-w > div {
+	padding: 5px 10px;
+}
+
+
+.all-cost p:not(:last-child) {
+  border-bottom: 1px dashed #6A6B6E7A;
+}
+.all-cost p {
+	padding-bottom: 3px;
+	margin-bottom: 3px;
+}
+.all-cost p:last-child {
+	margin-bottom: 0;
+	padding-bottom: 1px;
+}
+.ref-table .cost-total-row td {
+  border-bottom: 2px solid #6A6B6E;
+}
+.payment-info-wrapper {
+  margin-bottom: 30px;
+}
+.note {
+	color: #6A6B6E;
+	font-size: 11px;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	text-align: center;
+}
+.t-body-rw.rw-w.cost-total-row {
+	align-items: center;
+	border-bottom: 2px solid #6A6B6E;
+}
+.important-note h4 {
+  text-transform: uppercase;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: #6A6B6E;
+}
+.note-list {
+	margin: 0;
+	padding-left: 25px;
+	max-width: 520px;
+    list-style-type: disc;
+    
+}
+.note-list li {
+	position: relative;
+	padding-left: 0;
+	color: #6A6B6E;
+	font-size: 16px;
+	line-height: 20px;
+}
+.important-note.red h4 {
+  color: #E75657;
+}
+.important-note.red .note-list li {
+  color: #E75657;
+}
+.important-note {
+  margin-bottom: 20px;
+}
+.condition-g-wrapper {
+	display: grid;
+	grid-template-columns: auto 210px;
+	grid-gap: 30px;
+}
+.verified-signature {
+  text-align: center;
+}
+.signature img {
+	max-width: 200px;
+}
+.verified-signature p {
+  text-align: center;
+  color: #6A6B6E;
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 10px;
+}
+.cost-amount {
+	color: #3566B0;
+	font-weight: bold;
+	font-size: 22px;
+	text-align: right;
+	display: block;
+	padding: 5px;
+	line-height: 1;
+}
+.ref-table .cost-total-row td {
+	border-bottom: 2px solid #6A6B6E;
+	vertical-align: middle;
+}
+
+.para p {
+  color: #6A6B6E;
+  font-size: 16px;
+  line-height: 22px;
+}
+.para p:not(:last-child) {
+  margin-bottom: 15px;
+}
+.para {
+  margin-bottom: 20px;
+}
+.para h4 {
+  margin-bottom: 10px;
+  color: #6A6B6E;
+  font-size: 18px;
+  font-weight: 500;
+}
+.primary-title {
+  color: #6A6B6E;
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+.second-part .invoice-make-date {
+  text-align: left;
+  font-weight: 500;
+}
+.second-part .invoice-number {
+  color: #6A6B6E;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.end-statement {
+	display: block;
+	font-style: italic;
+	font-weight: 600;
+	margin-bottom: 28px;
+	color: #6A6B6E;
+}
+.end-part p {
+  font-size: 16px;
+  line-height: 22px;
+  color: #6A6B6E;
+  margin-bottom: 1px;
+}
+.end-part h5 {
+  color: #6A6B6E;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+.end-part {
+  position: relative;
+  padding-bottom: 28px;
+}
+.end-part::after {
+  width: 200px;
+  height: 2px;
+  background: #6A6B6E;
+  content: "";
+  position: absolute;
+  bottom: 0;
+}
+.first-part {
+  margin-bottom: 30px;
+}
+/* invoice-wrapper css end */
+
+
+
+/* Responsive Query */
+
+@media (max-width: 991px) {
+  .signature img {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .logo img {
+    max-width: 130px;
+  }
+  .fx-padding {
+    padding: 0;
+  }
+  .invoice-number {
+    font-size: 20px;
+  }
+  .ref-table {
+    min-width: 767px;
+  }
+  .logo::after {
+    width: 60px;
+  }
+
+
+
+
+}
+    </style>
 </head>
 <body>
-<div style="width: 85%; margin: 0 7.5%;">
-	<div style="text-align: center; padding-left: 50px;">
-	<h3>Student Report</h5>
-	<center>
-	<table style="text-allign : center">
-		Hello
-	</table>	
-	</center>
-	</div>
-</div>
+    <div class="invoice-wrapper">
+        <div class="invoice-container">
+            <a href="#" class="logo"><img src="img/logo.png" alt=""></a>
+            <div class="fx-padding">
+                <div class="first-part">
+                    <span class="invoice-make-date">Friday, 4th December, 2020</span>
+                    <h4 class="invoice-number">INVOICE #390012</h4>
+
+                    <div class="invoice-address-g-wrap">
+                        <div class="address left">
+                            <h3 class="portion-title">Consignee</h3>
+                            <p>TARIK KAYATARIK</p>
+                            <p>136 FRANCES STREET LIDCOMBE 2141 NSW</p>
+                            <p>+614215995277</p>
+                        </div>
+                        <div class="address right">
+                            <h3 class="portion-title">Notifying Party</h3>
+                            <p>TARIK KAYATARIK</p>
+                            <p>136 FRANCES STREET LIDCOMBE 2141 NSW</p>
+                            <p>+614215995277</p>
+                        </div>
+                    </div> <!-- ./invoice-address-g-wrap -->
+
+                    <div class="payment-info-wrapper">
+                        <h3 class="portion-title">Please make payment to</h3>
+                        <div class="info-rw">
+                            <span class="info-type">Bank Name:</span>
+                            <span class="value">RESONA BANK, LTD</span>
+                        </div>
+                        <div class="info-rw">
+                            <span class="info-type">Branch Name:</span>
+                            <span class="value">ITABASHI BRANCH</span>
+                        </div>
+                        <div class="info-rw">
+                            <span class="info-type">Branch Address:</span>
+                            <span class="value">3-1-1 ITABASHI, ITABASHI-KU, TOKYO, JAPAN</span>
+                        </div>
+                        <div class="info-rw">
+                            <span class="info-type">Bank Swift Code:</span>
+                            <span class="value">DIWAJPJT</span>
+                        </div>
+                        <div class="info-rw">
+                            <span class="info-type">Account Name:</span>
+                            <span class="value">CAR FROM JAPAN CO., LTD.</span>
+                        </div>
+                        <div class="info-rw">
+                            <span class="info-type">Account Number:</span>
+                            <span class="value">598 - 3849646</span>
+                        </div>
+                        <div class="info-rw">
+                            <span class="info-type">Account Address:</span>
+                            <span class="value">IWAMOTOCHO 3-10-7-7F(33), CHIYODA, TOKYO, JAPAN 101-0032</span>
+                        </div>
+                    </div> <!-- ./payment-info-wrapper -->
+
+                    <div class="ref-table-wrapper">
+                        <div class="ref-table-scroll-wrap">
+                            <div class="ref-table">
+                                <div class="tb-heading-rw rw-w">
+                                    <span class="tb-heading">Ref. No.</span>
+                                    <span class="tb-heading">Description</span>
+                                    <span class="tb-heading">Total price includes</span>
+                                </div>
+                                <div class="t-body">
+                                    <div class="t-body-rw rw-w">
+                                        <div>
+                                            <span class="ref-no">CFJ5697925</span>
+                                        </div>
+                                        <div>
+                                            <div class="description">
+                                                <p>BMW 5 Series 2017 <br> Mileage: 26,000 km <br> Engine: Diesel / Automatic / 2,000 cc</p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="all-cost">
+                                                <p>Product Cost</p>
+                                                <p>Shipping Cost</p>
+                                                <p>Pre-shipment Inspection</p>
+                                                <p>Pre-shipment Inspection</p>
+                                                <p>Buyer Protection Fee</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="t-body-rw rw-w cost-total-row">
+                                        <div>TOTAL (USD)</div>
+                                        <div>(CIF, Australia/Kembla)</div>
+                                        <div><span class="cost-amount">$40,487</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- ./ref-table-scroll-wrap -->
+                        <p class="note">* The above price includes US$95 as CAR FROM JAPAN buyer protection fee. This transaction is secured by CAR FROM JAPAN buyer protection.</p>
+                    </div> <!-- ./ref-table-wrapper -->
+
+                    <div class="important-note red">
+                        <h4>Important note:</h4>
+                        <ul class="note-list">
+                            <li>Your invoice number "390012" must be mentioned on payment proof (T/T copy). If not, shipping might be delayed.</li>
+                            <li>All bank charges, including intermediary bank fee must bepaid by the buyer.</li>
+                        </ul>
+                    </div> <!-- ./important-note -->
+                    
+                    <div class="important-note">
+                        <h4>PAYMENT TERMS & CONDITIONS:</h4>
+                        <div class="condition-g-wrapper">
+                            <ul class="note-list">
+                                <li>We will hold the reservation of the vehicle for 48 hours from the time of Invoice and purchase agreement issuance.</li>
+                                <li>Reservation will be extended if payment proof (T/T copy) is shared with us within the 48 hour deadline.</li>
+                                <li>Payment must be in same currency as INVOICE.</li>
+                            </ul>
+                            <div class="verified-signature">
+                                <div class="signature">
+                                    <img src="img/signature.png" alt="">
+                                </div>
+                                <p>CAR FROM JAPAN CO., LTD.</p>
+                            </div>
+                        </div> <!-- ./condition-g-wrapper -->
+                    </div> <!-- ./important-note -->
+                </div> <!-- ./first-part -->
+
+        
+                <div class="second-part">
+                    <h4 class="invoice-number">INVOICE #390012</h4>
+                    <span class="invoice-make-date">Friday, 4th December, 2020</span>
+                    <div class="para type-1">
+                        <h2 class="primary-title">Agreement</h2>
+                        <p>This is an agreement between the Consignee (hereafter "Buyer") and CAR FROM JAPAN CO., LTD. regarding the purchase of vehicle <strong>BMW 5Series 2017</strong></p>
+                    </div>
+                    <div class="para">
+                        <h4>Payment Information</h4>
+                        <p>The Buyer must pay the full invoiced amount for vehicle(s) mentioned in the invoice and send T/T copy to CAR FROM JAPAN CO., LTD. or itsaffiliates (hereafter "CAR FROM JAPAN"), following the PAYMENT TERMS & CONDITIONS. The Buyer shall bear necessary bank transfercharges. CAR FROM JAPAN guarantees handover of the related product(s) upon receipt of full price within the deadline.</p>
+                        <p>Upon receipt of the T/T copy within the deadline, CAR FROM JAPAN will conduct reservation extension of the car and notify you aboutreservation completion. The reservation extension will be for 72 hours from the valid T/T copy received time. This time is for the payment toreach CAR FROM JAPAN's Bank in Japan.</p>
+                    </div>
+                    <div class="para">
+                        <h4>Cancellation Terms</h4>
+                        <p>Upon buyers' inability of fulfilling PAYMENT TERMS & CONDITIONS, the deal will be cancelled. Buyer can also ask for cancellation. In case ofcancellation after CAR FROM JAPAN has confirmed the transaction (full or partial payment confirmation), CAR FROM JAPAN will charge 20%of the invoiced amount or $1,000 per car, whichever higher, as a cancellation fee. CAR FROM JAPAN will send the refund amount to the Buyer,after deducting the charges, at Buyers bank cost.</p>
+                        <p>In case of order cancellation after CAR FROM JAPAN has shared the shipping schedule with the Buyer, no refund will be available.</p>
+                        <p>After CAR FROM JAPAN have received the payment of invoiced amount within deadline, if CAR FROM JAPAN cancels the deal for unavoidablereasons (for example, natural disaster, the product has been damaged or not available), CAR FROM JAPAN will refund the Buyer 100% of theamount received, and CAR FROM JAPAN will bear the bank cost for the refund.</p>
+                    </div>
+                    <div class="para">
+                        <h4>Vehicle(s) Condition</h4>
+                        <p>CAR FROM JAPAN presents information about the condition and function of vehicle(s) accurately, to the best of its ability and knowledge. Bypurchasing vehicle(s) from CAR FROM JAPAN, the Buyer understands and agrees that the vehicle(s) might be an USED one, the conditions aredescribed as honestly as possible, and vehicle(s) are not guaranteed to be same as the image the Buyer might have about the vehicle(s). TheBuyer cannot put forth a claim on the vehicle(s) condition upon delivery.</p>
+                    </div>
+                    <div class="para">
+                        <h4>Standards / Laws of Importing Countries</h4>
+                        <p>The Buyer will be responsible to confirm the import laws and customs duties with the authorities in the importing country before they make apurchase from CAR FROM JAPAN. CAR FROM JAPAN will not be responsible for any claim related to such rules.</p>
+                    </div>
+                    <div class="end-part">
+                        <span class="end-statement">- End-</span>
+                        <h5>Car From Japan Co., Ltd</h5>
+                        <p><strong>T</strong>: 03-4540-6692 </p>
+                        <p><strong>F</strong>: 03-6735-4663 </p>
+                        <p><strong>E</strong>: ask@carfromjapan.com</p>
+                        <p>www.carfromjapan.com </p>
+                        <p><strong>Toujiki Building 7F, Iwamotocho 3-10-7, Chiyoda, Tokyo, Japan 101-0032</strong></p>
+                    </div>
+                </div>
+
+            </div> <!-- ./fx-padding -->
+        </div>
+    </div> <!-- ./invoice-wrapper -->
 </body>
 </html>
-

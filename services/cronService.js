@@ -16,7 +16,7 @@ cron.schedule("* * * * *", async function() {
         console.log("inquire")
 
         await inquiries.map( async(item,index)=>{
-            console.log("map")
+            //console.log("map")
             let acceptDate = new Date(item.requestDate)
             let now = Date.now()
             let businessDay = getBusinessDay(acceptDate,now)
