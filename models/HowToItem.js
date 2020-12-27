@@ -5,6 +5,7 @@ const HowToSchema = require('./HowTo.js')
 
 
 const HowToItemSchema = mongoose.Schema({
+
     type:{
         type:mongoose.Schema.Types.ObjectId,
         ref:HowToItemTypeSchema
@@ -12,7 +13,6 @@ const HowToItemSchema = mongoose.Schema({
     howto:{
         type:mongoose.Schema.Types.ObjectId,
         ref:HowToSchema
-
     },
     sort:{
         type:Number,
@@ -22,6 +22,7 @@ const HowToItemSchema = mongoose.Schema({
         type:String,
         default:''
     },
+
 })
 
 module.exports = mongoose.model('howtoitem', HowToItemSchema);

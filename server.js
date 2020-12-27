@@ -5,7 +5,7 @@ const realTimeServer =require('./services/realTimeServer.js');
 const cron = require('./services/cronService.js')
 const server = http.createServer(app);
 
-const PORT = process.env.PORT || 5555;
+const PORT = process.env.PORT || 5550;
 
 // Run the Server
 const webserver = server.listen(PORT, () => {

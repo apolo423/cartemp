@@ -11,7 +11,9 @@ var storage = multer.diskStorage({
     if(mode == 'avatar'){
         dest = path.join(`${dest}/avatar/`)
     }
-    
+    if(mode == 'flag'){
+      dest = path.join(`${dest}/flag/`)
+    }
     if (!fs.existsSync(dest)) {
       
         fs.mkdirSync(dest)
@@ -19,8 +21,12 @@ var storage = multer.diskStorage({
     callback(null, dest);
   },
   filename: (req, file, callback) => {
-
-    var filename = `${req.query.userId}-MP-${file.originalname}`;
+    let { mode } = req.query
+    var filename = file.originalname
+    if(mode == 'avatar')
+      filename = `${req.query.userId}-MP-${file.originalname}`;
+    if(mode == 'flag')
+      filename = `flag-${file.originalname}`;
     callback(null, filename);
   }
 });

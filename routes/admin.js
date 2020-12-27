@@ -4,6 +4,8 @@ const Inquiry = require('../models/Inquiry');
 const ChatLog = require('../models/ChatLog');
 const Car = require('../models/Car');
 const InquiryDoc = require('../models/InquiryDoc');
+const Country = require('../models/Country')
+const HowtobuyTextKeyGroup = require('../models/HowtobuyTextKeyGroup')
 
 /***/
 const HowTo = require('../models/HowTo')
@@ -16,6 +18,7 @@ const HowToItemType = require('../models/HowToItemType')
 
 const generatePDF = require('../services/generatePDF');
 const { stat } = require('fs');
+const { count } = require('../models/Country');
 const router = express.Router()
 
 router.get('/invoice',async(req,res,next)=>{
@@ -311,11 +314,12 @@ router.post("/editDoc",async(req,res,next)=>{
 router.get('/getHowTo',async(req,res,next)=>{
     try{
         let totalNormalHowto = []
-        let normalHowto = await HowTo.find({type:1})
+        let normalHowto = await HowTo.find({}).sort({'sort':1})
+        console.log(normalHowto)
         await Promise.all(normalHowto.map(async(normalitem,nindex)=>{
             let howtoItem = await HowToItem.find({
                 howto:normalitem._id
-            })
+            }).sort({'_id':'asc'})
                 let totalHowtoItem = []
                 await Promise.all(howtoItem.map(async(item,index)=>{
                     let imageItem = await HowToItemImageItem.find({
@@ -332,12 +336,15 @@ router.get('/getHowTo',async(req,res,next)=>{
                     })
                 }))
 
-            normalHowto[nindex] = normalitem
+            //normalHowto[nindex] = normalitem
+            console.log(normalitem.sort)
             totalNormalHowto.push({
                 ...normalitem._doc,
                 smallItem:[...totalHowtoItem]})
   
         }))
+        totalNormalHowto.sort((a,b)=>{return a.sort - b.sort})
+        console.log(totalNormalHowto)
         res.status(200).json({
             normalHowto:totalNormalHowto,
             result:true
@@ -399,11 +406,11 @@ router.post('/saveHowToItem',async(req,res,next)=>{
         }))
         
         let totalNormalHowto = []
-        let normalHowto = await HowTo.find({type:1})
+        let normalHowto = await HowTo.find({}).sort({'sort':'asc'})
         await Promise.all(normalHowto.map(async(normalitem,nindex)=>{
             let howtoItem = await HowToItem.find({
                 howto:normalitem._id
-            })
+            }).sort({'_id':'asc'})
                 let totalHowtoItem = []
                 await Promise.all(howtoItem.map(async(item,index)=>{
                     let imageItem = await HowToItemImageItem.find({
@@ -426,6 +433,7 @@ router.post('/saveHowToItem',async(req,res,next)=>{
                 smallItem:[...totalHowtoItem]})
   
         }))
+        totalNormalHowto.sort((a,b)=>{return a.sort - b.sort})
 
         res.status(200).json({
             normalHowto:totalNormalHowto,
@@ -455,5 +463,120 @@ router.post('/deleteHowToItem',async(req,res,next)=>{
         console.log(err)
         res.status(200).json({result:false})
     }
+})
+
+router.get('/getHowtobuyKey',async(req,res,next)=>{
+    try{
+        let totalSpecificHowto = []
+        let normalHowto = await HowTo.find({type:2}).sort({'sort':'asc'})
+
+        await Promise.all(normalHowto.map(async(normalitem,nindex)=>{
+            let howtoItem = await HowToItem.find({
+                howto:normalitem._id
+            }).sort({'_id':'asc'})
+                let totalHowtoItem = []
+                await Promise.all(howtoItem.map(async(item,index)=>{
+                    let imageItem = await HowToItemImageItem.find({
+                        item:item._id
+                    })
+                    let txtItem = await HowToItemTextItem.find({
+                        item:item._id
+                    })
+                  
+                    totalHowtoItem.push({
+                        ...item._doc,
+                        imageItem:imageItem,
+                        txtItem:txtItem
+                    })
+                }))
+
+                totalSpecificHowto.push({
+                ...normalitem._doc,
+                smallItem:[...totalHowtoItem]})
+  
+        }))
+        totalSpecificHowto.sort((a,b)=>{return a.sort - b.sort})
+       
+
+        res.status(200).json({
+            totalSpecificHowto:totalSpecificHowto,
+            result:true
+        })
+    }catch(err){
+        console.log(err)
+        res.status(200).json({
+            result:false
+        })
+    }
+
+})
+router.post('/newCountry',async(req,res,next)=>{
+    try{
+    console.log(req.body.params)
+
+        const { name , flag , txtValueGroup }  = req.body.params
+        // console.log(item)
+        console.log(name)
+        let existCountry = await Country.findOne({name:name})
+        console.log(existCountry)
+        if(!existCountry){
+            existCountry = await Country.create({
+                name:name,
+                flag:flag
+            })
+        }
+        existCountry.name=name
+        existCountry.flag=flag
+        await existCountry.save()
+        await HowtobuyTextKeyGroup.deleteMany({country:existCountry._id})
+        await Promise.all(txtValueGroup.map(async(txtval,index)=>{
+            await HowtobuyTextKeyGroup.create({
+                country:existCountry._id,
+                name:txtval.name,
+                value:txtval.value
+            })
+        }))
+        res.status(200).json({result:true})
+       
+    }catch(err){
+        console.log(err)
+        res.status(200).json({result:false})
+    }
+})
+router.get('/getAllCountryInfo',async(req,res,next)=>{
+    try{
+        
+        let pgsize = req.query.pgsize
+        let pg = req.query.pg
+
+        //let car = await Car.findOne({_id:carId})
+        let countryInfos = []
+        var countries = await Country.find()
+        .skip((pg * pgsize))
+        .limit(parseInt(pgsize))
+
+        await Promise.all(countries.map(async(country,index)=>{
+
+           let txtKeygroup = await HowtobuyTextKeyGroup.find({country:country._id})
+           countryInfos.push({
+               ...country._doc,
+               txtValueGroup:txtKeygroup
+           })
+        }))
+        console.log(countryInfos)
+        var cnt = await Country.count()
+        var pgcnt = Math.ceil(cnt / pgsize)
+
+        res.status(200).json({
+            countries   :countryInfos,
+            pgcnt       :pgcnt
+        })
+    }catch(err){
+        console.log(err)
+        res.status(200).json({
+            result:false
+        })
+    }
+
 })
 module.exports = router;

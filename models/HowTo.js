@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const HowToSchema = mongoose.Schema({
     /**
-     * 0:normal
-     * 1:specific
+     * 1:normal
+     * 2:specific
      */
     type:{
         type:Number,

@@ -4,6 +4,8 @@ const nodemailer = require('nodemailer');
 const router = express.Router()
 const Car = require('../models/Car');
 const Inquiry = require('../models/Inquiry');
+const Country = require('../models/Country')
+const HowtobuyTextKeyGroup = require('../models/HowtobuyTextKeyGroup')
 /**
  * 
  <html>
@@ -153,5 +155,31 @@ router.post("/sendmail",async(req,res,next)=>{
         console.log(err)
         res.status(200).json({result:false})
     }
+})
+router.get('/country',async(req,res,next)=>{
+  try{
+      
+      let countryInfos = []
+      var countries = await Country.find()
+     
+      await Promise.all(countries.map(async(country,index)=>{
+
+         let txtKeygroup = await HowtobuyTextKeyGroup.find({country:country._id})
+         countryInfos.push({
+             ...country._doc,
+             txtValueGroup:txtKeygroup
+         })
+      }))
+
+      res.status(200).json({
+          countries   :countryInfos,
+      })
+  }catch(err){
+      console.log(err)
+      res.status(200).json({
+          result:false
+      })
+  }
+
 })
 module.exports = router;
