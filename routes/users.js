@@ -15,12 +15,12 @@ const router = express.Router()
 
 router.post("/", async (req, res, next) => {
     
-    const {username, email, password} = req.body
+    const {name, email, password} = req.body
 
-    if (!username || !email || !password){
+    if (!name || !email || !password){
         return res.status(400)
         .json({
-            "message" : "Please enter username, password and email."
+            "message" : "Please enter name, password and email."
         })
     }
 
@@ -35,7 +35,7 @@ router.post("/", async (req, res, next) => {
         }
 
         const newUser = new User({
-            username : username,
+            name : name,
             email : email,
             password : password
         })
@@ -67,7 +67,7 @@ router.post("/", async (req, res, next) => {
                                 "message" : "New user successfully created !",
                                 user : {
                                     "id" : user._id,
-                                    "username" : user.username,
+                                    "name" : user.name,
                                     "email" : user.email,
                                     "phonenumber":user.phonenumber
                                 }

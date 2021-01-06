@@ -20,7 +20,7 @@ router.post("/register",async (req,res)=>{
             var salt = bcrypt.genSaltSync(10);
             var hash = bcrypt.hashSync(req.body.param.password, salt);
             var userInfo = {
-                username        :req.body.param.name,
+                name        :req.body.param.name,
                 email           :req.body.param.email,
                 password        :hash,
                 phone           :req.body.param.phone,
@@ -42,7 +42,7 @@ router.post("/registerWithGoogle",async (req,res)=>{
        // if(newuser == null)
         {
             var userInfo = {
-                username        :req.body.param.name,
+                name        :req.body.param.name,
                 email           :req.body.param.email,
                 password        :"hash",
                 googleId        :req.body.param.googleId,
@@ -92,16 +92,20 @@ router.post("/login", (req, res, next) => {
                 .json({
                     result:false,
 
-                    "message" : "Invalid Credentials, Username or Password is incorrect."
+                    "message" : "Invalid Credentials, name or Password is incorrect."
                 })
             }
             
             const payload = {
                 id:user._id,
-                name:user.username,
+                name:user.name,
                 email:user.email,
                 phone:user.phone,
                 avatar:user.avatar,
+                country:user.country,
+                seaport:user.seaport,
+                address:user.address,
+                role:user.role,
                 registered_date:user.registered_date
             }
             jwt.sign(
@@ -146,10 +150,14 @@ router.post("/loginWithGoogle", (req, res, next) => {
         }
             const payload = {
                 id:user._id,
-                name:user.username,
+                name:user.name,
                 email:user.email,
                 phone:user.phone,
                 avatar:user.avatar,
+                country:user.country,
+                seaport:user.seaport,
+                address:user.address,
+                role:user.role,
                 registered_date:user.registered_date
             }
             jwt.sign(
@@ -193,40 +201,17 @@ router.post("/changeAvatar",async (req,res)=>{
         var newuser = await User.findOne({_id : user})
         newuser.avatar = file.filename
         await newuser.save()
-        res.status(200).json({
-            user:newuser,
-            result:true
-        })
-    }catch(error){
-        console.log(error)
-        res.status(200).json({success:2})
-    }
-})
-router.post("/changeUserInfo",async (req,res)=>{
-    
-    const {id,name,email,phone,country,seaport,address,password} = req.body.param
-    try{
-        var newuser = await User.findOne({_id : id})
-        newuser.username = name
-        newuser.email = email
-        newuser.phone = phone
-        newuser.country = country
-        newuser.seaport = seaport
-        newuser.address = address
-        newuser.id=id
-        var salt = bcrypt.genSaltSync(10);
-        var hash = bcrypt.hashSync(password, salt);
-        newuser.password = hash
 
-        await newuser.save()
-
-        /*
         const payload = {
-            id:user._id,
-            name:newuser.username,
+            id:newuser._id,
+            name:newuser.name,
             email:newuser.email,
             phone:newuser.phone,
+            country:newuser.country,
+            seaport:newuser.seaport,
+            address:newuser.address,
             avatar:newuser.avatar,
+            role:newuser.role,
             registered_date:newuser.registered_date
         }
 
@@ -243,15 +228,66 @@ router.post("/changeUserInfo",async (req,res)=>{
                 })
             }
         )
-        */
+    }catch(error){
+        console.log(error)
+        res.status(200).json({success:2})
+    }
+})
+router.post("/changeUserInfo",async (req,res)=>{
+    
+    const {id,name,email,phone,country,seaport,address,password} = req.body.param
+    console.log(req.body.param)
+    try{
+        var newuser = await User.findOne({_id : id})
+        newuser.name = name
+        newuser.email = email
+        newuser.phone = phone
+        newuser.country = country
+        newuser.seaport = seaport
+        newuser.address = address
+        var salt = bcrypt.genSaltSync(10);
+        var hash = bcrypt.hashSync(password, salt);
+        newuser.password = hash
 
+        await newuser.save()
+        
+
+        
+        const payload = {
+            id:newuser._id,
+            name:newuser.name,
+            email:newuser.email,
+            phone:newuser.phone,
+            country:newuser.country,
+            seaport:newuser.seaport,
+            address:newuser.address,
+            avatar:newuser.avatar,
+            role:newuser.role,
+            registered_date:newuser.registered_date
+        }
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            {expiresIn : parseInt(process.env.JWT_EXPIRES_IN)},
+            (err, token ) => {
+                return res.status(200)
+                .json({
+                    result:true,
+                    token,
+                    "message" : "Logged in successfully"
+                })
+            }
+        )
+        /*
         res.status(200).json({
             user:newuser,
             result:true
         })
+        */
     }catch(error){
         console.log(error)
-        res.status(200).json({success:2})
+        res.status(200).json({result:false})
     }
 })
 

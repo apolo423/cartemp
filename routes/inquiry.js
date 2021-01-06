@@ -108,20 +108,42 @@ router.post("/sendInvocie",async(req,res,next)=>{
             path:'car'
         })
         
-        inquiry.state = 2
-        inquiry.requestDate = Date.now()
-        await inquiry.save()
-        // let car = await Car.findOne({_id:cid})
-        // car.invoiceState = 2
-        await Car.updateOne({_id:inquiry.car._id},{invoiceState:2})
-        res.status(200).json({
-            inquiry:{
-                inquiry     :inquiry,
-                chatlogs    :[],
-                inquirydocs :[]
-            },
-            result:true
-        })
+        
+        let carId = inquiry.car._id
+        let inquiryCar = await Car.findOne({_id:carId})
+
+        if(!inquiryCar){
+            res.status(200).json({
+                //status:1,
+                result:false//error
+            })
+        }else{
+            if(inquiryCar.invoiceState > 2){
+                res.status(200).json({
+                    status:1,//this car has been already asked
+                    result:true
+                })
+            }else
+            {
+                
+                inquiry.state = 2
+                inquiry.requestDate = Date.now()
+                await inquiry.save()
+                // let car = await Car.findOne({_id:cid})
+                // car.invoiceState = 2
+                await Car.updateOne({_id:inquiry.car._id},{invoiceState:2})
+                res.status(200).json({
+                    inquiry:{
+                        inquiry     :inquiry,
+                        chatlogs    :[],
+                        inquirydocs :[]
+                    },
+                    status:0,
+                    result:true
+                })
+            }
+        }
+
     }catch(err){
         console.log(err)
         res.status(200).json({result:false})

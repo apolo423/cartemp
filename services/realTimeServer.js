@@ -117,7 +117,9 @@ module.exports.socketio = (server)=>{
             }))
         })
         socket.on('sendInvoiceMsg', async data=>{
-            let admin = await User.findOne({username:'admin'})//must replace
+            //let admin = await User.findOne({name:'admin'})//must replace
+            let admin = await User.findOne({role:1})
+
             console.log(admin)
             let chatlog = await ChatLog.create({
                 inquiry     :data.inquiry,
@@ -166,8 +168,11 @@ module.exports.socketio = (server)=>{
             .populate({
                 path:'receiver'
             })
+            console.log("H_______________________")
+            console.log(data.receiver)
             let receiveSocket = getUserSocket(data.receiver)
             if(receiveSocket){
+                console.log('asdf_________________')
                 receiveSocket.emit('__sendInvoiceMsgFromAdmin',{
                     chatlog:chatlog
                 })
@@ -189,7 +194,9 @@ module.exports.socketio = (server)=>{
             socket.emit('__checkDoneInquiryMsg',{})
         })
         socket.on('refreshFlowChartFromUser',async data=>{
-            let admin = await User.findOne({username:'admin'})//must replace
+//            let admin = await User.findOne({name:'admin'})//must replace
+            let admin = await User.findOne({role:1})
+
             let adminSocket = getUserSocket(admin._id)
             if(adminSocket){
                 adminSocket.emit('__refreshFlowChartFromUser',{

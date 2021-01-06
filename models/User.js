@@ -3,12 +3,19 @@ const CountrySchema = require('./Country.js');
 
 const UserSchema = mongoose.Schema({
 
-    username : {
+    name : {
         type : String,
         required : true,
         trim : true
     },
-
+    /**
+     * 1: admin
+     * 0: user
+     */
+    role:{
+        type:Number,
+        default:0
+    },
     email : {
         type : String,
         required : true,

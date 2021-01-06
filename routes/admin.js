@@ -5,6 +5,7 @@ const ChatLog = require('../models/ChatLog');
 const Car = require('../models/Car');
 const InquiryDoc = require('../models/InquiryDoc');
 const Country = require('../models/Country')
+const User = require('../models/User')
 const HowtobuyTextKeyGroup = require('../models/HowtobuyTextKeyGroup')
 
 /***/
@@ -99,7 +100,7 @@ router.post("/accpetInvoice",async(req,res,next)=>{
             realName    :'Invoice.pdf'
         })
 
-        await Car.updateOne({_id:inquiry.car},{invoiceState:3})
+        await Car.updateOne({_id:inquiry.car},{invoiceState:inquiry.state})
         /**remove other inquiry */
         
         /**-- */
@@ -143,7 +144,12 @@ router.post("/accpetStep",async(req,res,next)=>{
              path:'car'
          })
         inquiry.state = state
+
+        if(inquiry.state == 6){
+            inquiry.inquiryState = 1
+        }
         await inquiry.save()
+        await Car.updateOne({_id:inquiry.car},{invoiceState:inquiry.state})
 
         let chatlog = await ChatLog.find({
             inquiry:inquiryId
@@ -252,7 +258,7 @@ router.post("/uploadDoc",async(req,res,next)=>{
         let inquirydoc = await InquiryDoc.find({
             inquiry:inquiryId
         })
-        console.log('HAH')
+        // console.log('HAH')
         console.log(inquirydoc)
         res.status(200).json({
             inquiryid:inquiryId,
@@ -569,6 +575,34 @@ router.get('/getAllCountryInfo',async(req,res,next)=>{
 
         res.status(200).json({
             countries   :countryInfos,
+            pgcnt       :pgcnt
+        })
+    }catch(err){
+        console.log(err)
+        res.status(200).json({
+            result:false
+        })
+    }
+
+})
+router.get('/getAllUser',async(req,res,next)=>{
+    try{
+        
+        let pgsize = req.query.pgsize
+        let pg = req.query.pg
+
+        //let car = await Car.findOne({_id:carId})
+
+        var users = await User.find()
+        .sort({'role':'desc'})
+        .skip((pg * pgsize))
+        .limit(parseInt(pgsize))
+
+        var cnt = await User.count()
+        var pgcnt = Math.ceil(cnt / pgsize)
+
+        res.status(200).json({
+            users        :users,
             pgcnt       :pgcnt
         })
     }catch(err){
