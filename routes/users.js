@@ -127,32 +127,57 @@ router.get("/initialdata",async(req,res,next)=>{
 })
 router.post("/setfavorite",async(req,res,next)=>{
     try{
-        let carid = req.body.param.carid
+        let favorites = req.body.param.favorite
         let userid = req.body.param.uid
 
-        let exist = await Favorite.findOne({
-            car:carid,
-            user:userid
-        })
-        if(exist)
-        {
-            await Favorite.remove({_id:exist._id})
-        }else
-        {
+        await Favorite.deleteMany({user:userid})
+        await Promise.all(favorites.map(async(favorite,index)=>{
             await Favorite.create({
-                car:carid,
-                user:userid
+                user:userid,
+                car:favorite
             })
-        }
-
-        let favorites = await Favorite.find({
-            user:userid
-        })
-        .populate({
-            path:'car'
-        })
+        }))
+      
         res.status(200).json({
-            favorites:favorites,
+            favorite:favorites,
+            success:true
+        })
+
+    }catch(err){
+        console.log(err)
+        res.status(200).json({success:false})
+    }
+})
+router.post("/getfavorite",async(req,res,next)=>{
+    try{
+        let favorites = req.body.param.favorite
+        let userid = req.body.param.uid
+
+        //await Favorite.deleteMany({user:userid})
+        console.log(favorites)
+        await Promise.all(favorites.map(async(favorite,index)=>{
+            let exist = await Favorite.findOne({
+                user:userid,
+                car:favorite
+            })
+            console.log('exist')
+            console.log(exist)
+            if(!exist){
+                await Favorite.create({
+                    user:userid,
+                    car:favorite
+                })
+            }
+            
+        }))
+        let favoriteobjs = await Favorite.find({user:userid})
+        let returnval = []
+        favoriteobjs.map((favorite,index)=>{
+            returnval.push(favorite.car)
+        })
+      
+        res.status(200).json({
+            favorite:returnval,
             success:true
         })
 

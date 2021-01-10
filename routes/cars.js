@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const HttpError = require('../errors/HttpError');
 const Car = require('../models/Car');
+const Favorite = require('../models/Favorite');
+
 const router = express.Router()
 router.get('/getCarInfo',async(req,res,next)=>{
     try{
@@ -51,18 +53,48 @@ router.get('/getAllCar',async(req,res,next)=>{
     }
 
 })
+router.get("/favorite",async(req,res,next)=>{
+    try{
+    
+        let uid = req.query.uid
+    
+        let favorites = await Favorite.find({
+            user:uid
+        })
+        .populate({
+            path:'car'
+        })
+        let cars = []
+        favorites.map((favorite,index)=>{
+            cars.push(favorite.car)
+        })
+        console.log(cars)
+        res.status(200).json({car:cars})
+
+    }catch(err){
+        console.log(err)
+        res.status(200).json({
+            result:false
+        })
+    }
+})
+
 router.get("/filter",async(req,res,next)=>{
     try{
         let filter = req.query
         let advanced_filter = Object.entries(JSON.parse(filter.advanced_filter))
+        let searchString = filter.searchString
+        
         let totalfilter = []
         let brandfilter = []
         let bodyfilter = []
         let mileagefilter = []
         let pricefilter = []
         let enginefilter = []
-
-
+        let transmissionfilter = []
+        let drivefilter = []
+        let fuelfilter = []
+        let searchStringFilter = []
         advanced_filter.map(([key,value])=>{
             if(key == "PopularBrandFilter")
             {
@@ -130,12 +162,75 @@ router.get("/filter",async(req,res,next)=>{
                         }
                     })
                 }
+            }else if(key == 'Transmission'){
+
+            }else if(key == 'Drive'){
+
+            }else if(key == 'Fuel'){
+                value.forEach(element=>{
+                    fuelfilter.push({fuel:{ $regex: element, $options: "i" }})
+                })
             }
         })
-        console.log(brandfilter)
-        console.log(bodyfilter)
+        if(searchString != ''){
+            searchStringFilter.push({
+                name: {
+                    $regex: searchString,
+                    $options: 'i'
+                }
+            })
+            searchStringFilter.push({
+                make: {
+                    $regex: searchString,
+                    $options: 'i'
+                }
+            })
+            searchStringFilter.push({
+                body_type: {
+                    $regex: searchString,
+                    $options: 'i'
+                }
+            })
+            searchStringFilter.push({
+                drive: {
+                    $regex: searchString,
+                    $options: 'i'
+                }
+            })
+            searchStringFilter.push({
+                location: {
+                    $regex: searchString,
+                    $options: 'i'
+                }
+            })
+            searchStringFilter.push({
+                builtDate: {
+                    $regex: searchString,
+                    $options: 'i'
+                }
+            })
+            searchStringFilter.push({
+                contact: {
+                    $regex: searchString,
+                    $options: 'i'
+                }
+            })
+            searchStringFilter.push({
+                color: {
+                    $regex: searchString,
+                    $options: 'i'
+                }
+            })
+            searchStringFilter.push({
+                features: {
+                    $regex: searchString,
+                    $options: 'i'
+                }
+            })
+        }
+
         totalfilter.push({
-            invoiceState:{ $ne: 3 }, // must change later
+            invoiceState:{ $lt: 4 }, // must change later
         })
         if(brandfilter.length != 0)
         {
@@ -167,7 +262,19 @@ router.get("/filter",async(req,res,next)=>{
                 $and:enginefilter
             })
         }
-
+        if(fuelfilter.length != 0)
+        {
+            totalfilter.push({
+                $or:fuelfilter
+            })
+        }
+        if(searchStringFilter.length != 0)
+        {
+            totalfilter.push({
+                $or:searchStringFilter
+            })
+        }
+        
         let cars
         /*
         if(totalfilter.length == 0)

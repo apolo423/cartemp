@@ -36,10 +36,10 @@ const InquirySchema = mongoose.Schema({
         required:true,
         default:0
     },
-    requestDate:{
+    requestDate:{//send request date
         type:Date
     },
-    acceptDate:{
+    acceptDate:{//admin accept invoice
         type:Date
     },
     orderDate:{
