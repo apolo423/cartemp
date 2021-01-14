@@ -168,11 +168,11 @@ module.exports.socketio = (server)=>{
             .populate({
                 path:'receiver'
             })
-            console.log("H_______________________")
+            //console.log("H_______________________")
             console.log(data.receiver)
             let receiveSocket = getUserSocket(data.receiver)
             if(receiveSocket){
-                console.log('asdf_________________')
+              //  console.log('asdf_________________')
                 receiveSocket.emit('__sendInvoiceMsgFromAdmin',{
                     chatlog:chatlog
                 })

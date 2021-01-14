@@ -16,6 +16,14 @@ const UserSchema = mongoose.Schema({
         type:Number,
         default:0
     },
+    /**
+     * 0:not activated,.
+     * 1:activated
+     */
+    state:{
+        type:Number,
+        default:0
+    },
     email : {
         type : String,
         required : true,

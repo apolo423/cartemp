@@ -66,7 +66,13 @@ router.get("/favorite",async(req,res,next)=>{
         })
         let cars = []
         favorites.map((favorite,index)=>{
-            cars.push(favorite.car)
+            if(favorite.car){
+                if(!favorite.car.invoiceState || favorite.car.invoiceState < 3)
+                {
+                    cars.push(favorite.car)
+                }
+            }
+                
         })
         console.log(cars)
         res.status(200).json({car:cars})
@@ -81,6 +87,10 @@ router.get("/favorite",async(req,res,next)=>{
 
 router.get("/filter",async(req,res,next)=>{
     try{
+        /*
+        console.log('userf:',req.user)
+        console.log('user1:',req.user1)
+        */
         let filter = req.query
         let advanced_filter = Object.entries(JSON.parse(filter.advanced_filter))
         let searchString = filter.searchString
@@ -228,10 +238,14 @@ router.get("/filter",async(req,res,next)=>{
                 }
             })
         }
-
+        
         totalfilter.push({
-            invoiceState:{ $lt: 4 }, // must change later
+            $or:[
+                {invoiceState:{ $lt: 3 }},
+                {invoiceState:undefined}
+            ], // must change later
         })
+        
         if(brandfilter.length != 0)
         {
             totalfilter.push({

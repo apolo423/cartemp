@@ -6,6 +6,7 @@ const Car = require('../models/Car');
 const Inquiry = require('../models/Inquiry');
 const Country = require('../models/Country')
 const HowtobuyTextKeyGroup = require('../models/HowtobuyTextKeyGroup')
+const sendMailService = require('../services/mailService')
 /**
  * 
  <html>
@@ -68,7 +69,8 @@ router.post("/sendmail",async(req,res,next)=>{
         let cid = req.body.param.cid
         let uid = req.body.param.uid
         let carInfo = await Car.findOne({_id:cid})
-        let html = '<div style="text-align: center;margin:20px"><h2 style="font-weight: bold;">' + 
+        let html = 
+        '<div style="text-align: center;margin:20px"><h2 style="font-weight: bold;">' + 
         carInfo.make + 
         '' + 
         carInfo.model + 
@@ -86,12 +88,12 @@ router.post("/sendmail",async(req,res,next)=>{
         '</div></div><div style="display: flex;justify-content: space-between;margin: 10px"><div>Vin</div><div>' + 
         carInfo.vin + 
         '</div></div></div></div></div>'
-        
-        var transporter = nodemailer.createTransport({
+          /*
+          var transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-              user: 'ektapst@gmail.com',
-              pass: '9da_omf71'
+              user: 'admin@carsfromaustralia.com',
+              pass: '3a419kyrUR#UkK%l'
             }
           });
           var mailOptions = {
@@ -100,17 +102,15 @@ router.post("/sendmail",async(req,res,next)=>{
             subject: 'CarInfo from CarSite!',
             html: html
           };
-          
+          */
           /** */
-         
           //console.log(currentCar)
-
-          
           /** */
           let existUserInquiry = await Inquiry.findOne({
             user:uid,
             car:cid
           })
+          /*
             if(!existUserInquiry){
               await Inquiry.create({
                 user    :uid,
@@ -123,8 +123,22 @@ router.post("/sendmail",async(req,res,next)=>{
             res.status(200).json({
               result:true
             })
-            
+            */
             ///
+            sendMailService.transferMail(html,mail,async ()=>{
+              if(!existUserInquiry){
+                await Inquiry.create({
+                  user    :uid,
+                  car     :cid,
+                  state   :1
+                })
+                await Car.updateOne({_id:cid},{invoiceState:1})
+              }
+              
+              res.status(200).json({
+                result:true
+              })
+            })
             /*
             transporter.sendMail(mailOptions, async function(error, info){
               if (error) {
@@ -148,9 +162,6 @@ router.post("/sendmail",async(req,res,next)=>{
               }
             });
             */
-          
-          
-          
     }catch(err){
         console.log(err)
         res.status(200).json({result:false})

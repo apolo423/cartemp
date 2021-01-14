@@ -5,38 +5,88 @@ const jwt = require('jsonwebtoken');
 const authmiddleware = require('../middleware/auth');
 const User = require('../models/User');
 const HttpError = require('../errors/HttpError');
+const sendMailService = require('../services/mailService')
 
 const router = express.Router()
 
 //@route /api/auth/register 
 
 router.post("/register",async (req,res)=>{
-    
-    console.log(req.body.param)
     try{
         var newuser = await User.findOne({'email' : req.body.email})
         if(newuser == null)
         {
             var salt = bcrypt.genSaltSync(10);
             var hash = bcrypt.hashSync(req.body.param.password, salt);
-            var userInfo = {
-                name        :req.body.param.name,
-                email           :req.body.param.email,
-                password        :hash,
-                phone           :req.body.param.phone,
-                registered_date :Date.now()
-            }
-            newuser = await User.create(userInfo)
-            res.status(200).json({success:3})
+            jwt.sign(
+                {
+                    name            :req.body.param.name,
+                    email           :req.body.param.email,
+                    password        :hash,
+                    phone           :req.body.param.phone,
+                    state           :0,
+                    role            :0,
+                    registered_date :Date.now()
+                },
+                
+                process.env.JWT_REGISTER_SECRET,
+                { expiresIn: '7d' },
+                (signErr, token) => {
+                  if (signErr)
+                    return res.status(400).json({ errors: 'Cannot send verification' });
+                  else
+                  {
+                      let clientURl = process.env.CLIENT_SERVER
+                      let html = `
+                      <h1>Please use the following to activate your account</h1>
+                      <a href="${clientURl}/activate/${token}">Activate your account</a>
+                      <hr />
+                      <p>This email may containe sensitive information</p>
+                      <p>${clientURl}</p>
+                       `
+                        sendMailService.transferMail(html,req.body.param.email,async ()=>{
+                            res.status(200).json({success:3})
+                            //res.json({ message: 'Verification is sent, Please check your email' });
+                        })
+                  }  
+                  
+                },
+              );
         }
     }catch(error){
         console.log(error)
         res.status(200).json({success:2})
     }
 })
-router.post("/registerWithGoogle",async (req,res)=>{
-    
+router.post('/verification',async (req,res)=>{
+    const { token } = req.body.param
     console.log(req.body.param)
+    if (!token) return res.json({ errors: 'error happening, please try again' });
+     jwt.verify(token, process.env.JWT_REGISTER_SECRET,async(err) => {
+      if (err) {
+        return res.status(401).json({ errors: 'Expired Link' });
+      }
+
+      let decode = jwt.decode(token)
+      let newuser = await User.findOne({'email' : decode.email})
+      if(newuser == null)
+      {
+        newuser = await User.create({
+            name:decode.name,
+            email:decode.email,
+            password:decode.password,
+            phone:decode.phone,
+            state:decode.state,
+            role:decode.role,
+            registered_date:decode.registered_date,
+          })
+          res.status(200).json({success:3})
+      }else{
+        res.status(200).json({success:2})
+      }
+    });
+})
+router.post("/registerWithGoogle",async (req,res)=>{
     try{
        // var newuser = await User.findOne({'email' : req.body.email})
        // if(newuser == null)
@@ -76,6 +126,7 @@ router.post("/login", (req, res, next) => {
 
     User.findOne({email : email})
     .then( user => {
+        console.log('user:',user)
         if (!user){
             return res.status(200)
             .json({
