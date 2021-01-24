@@ -41,7 +41,7 @@ router.post("/register",async (req,res)=>{
                       <h1>Please use the following to activate your account</h1>
                       <a href="${clientURl}/activate/${token}">Activate your account</a>
                       <hr />
-                      <p>This email may containe sensitive information</p>
+                      <p>This email may contain sensitive information</p>
                       <p>${clientURl}</p>
                        `
                         sendMailService.transferMail(html,req.body.param.email,async ()=>{
@@ -57,6 +57,87 @@ router.post("/register",async (req,res)=>{
         console.log(error)
         res.status(200).json({success:2})
     }
+})
+router.post('/forgotpassword',async(req,res)=>{
+    const {email} = req.body.param
+    console.log(email)
+    let existUser = await User.findOne({'email':email})
+    if(existUser)
+    {
+        jwt.sign(
+            {
+                id              :existUser._id,
+                name            :existUser.name,
+                email           :existUser.email
+            },
+            
+            process.env.JWT_FORGOT_SECRET,
+            { expiresIn: '7d' },
+            (signErr, token) => {
+              if (signErr)
+              
+                res.status(200).json({
+                    result:false,
+                    msg:'Unknow error occured. Try again'
+                })
+              else
+              {
+                  let clientURl = process.env.CLIENT_SERVER
+                  let html = `
+                  <h1>Please use the following to reset your password</h1>
+                  <a href="${clientURl}/resetPassword/${token}">Reset your password</a>
+                  <hr />
+                  <p>This email may contain sensitive information</p>
+                  <p>${clientURl}</p>
+                   `
+                    sendMailService.transferMail(html,req.body.param.email,async ()=>{
+                        res.status(200).json({
+                            result:true,
+                            msg:'We have sent reset password link to your mail app. Plese check your mail'
+
+                        })
+                    })
+              }  
+              
+            },
+          )
+    }else
+    {
+        res.status(200).json({
+            result:false,
+            msg:'This mail is not registered'
+        })
+    }
+})
+router.post('/resetPassword',async (req,res)=>{
+    const { token , password } = req.body.param
+    console.log(req.body.param)
+    if (!token) return res.json({ errors: 'error happening, please try again' });
+     jwt.verify(token, process.env.JWT_FORGOT_SECRET,async(err) => {
+      if (err) {
+        return res.status(401).json({ errors: 'Expired Link' });
+      }
+
+      let decode = jwt.decode(token)
+      var salt = bcrypt.genSaltSync(10);
+      var hash = bcrypt.hashSync(password, salt);
+
+      let newuser = await User.findOne({'email' : decode.email})
+      if(newuser == null)
+      {
+        res.status(200).json({
+            result:false,
+            msg:'Unknown error occured'
+        })
+      }else{
+        newuser.password = hash
+        await newuser.save()  
+        res.status(200).json({
+            result:true,
+            
+        })
+      }
+    });
 })
 router.post('/verification',async (req,res)=>{
     const { token } = req.body.param
