@@ -100,6 +100,10 @@ const CarSchema = mongoose.Schema({
         type : String,
         required : true
     },
+    engine_size:{
+        type : Number,
+        required : true
+    },
     engine_size_unit : {
         type : String,
         required : true

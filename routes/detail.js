@@ -6,7 +6,8 @@ const Car = require('../models/Car');
 const Inquiry = require('../models/Inquiry');
 const Country = require('../models/Country')
 const HowtobuyTextKeyGroup = require('../models/HowtobuyTextKeyGroup')
-const sendMailService = require('../services/mailService')
+const sendMailService = require('../services/mailService');
+const User = require('../models/User');
 /**
  * 
  <html>
@@ -68,132 +69,159 @@ router.post("/sendmail",async(req,res,next)=>{
         console.log(req.body.param)
         let cid = req.body.param.cid
         let uid = req.body.param.uid
-        let carInfo = await Car.findOne({_id:cid})
+		let carInfo = await Car.findOne({_id:cid})
+		let userInfo = await User.findOne({_id:uid})
         let html = `
-        <html>
-            <style>
-              .carItem-left{
-                float: left;
-                width: 50%;
-                height: 30px;
-              }
-              .carItem-right{
-                float: right;
-                width: 50%;
-                
-                height: 30px;
-              }
-              p{
-                margin: 2px!important;
-              }
-            </style>
-          <body>
-            <div style="text-align: center;margin:5px">
-              <h2 style="font-weight: bold;font-size:30px">${carInfo.make} ${carInfo.model}</h2>
-            </div>
-            <table role="presentatio" cellspacing="1" cellpadding="5px" border="0px" style="width: 100%">
-              <tr>
-                <td style="width:50%">
-                  <img width="600" style="width: 100%" src="${carInfo.images[0]}"/>
-                </td>
-                <td style="width:50%">
-                  <div style="text-align: center;font-size: 25px">
-                    <p>About Vechile</p>
-                  </div>
-                  <div style="text-align: center;font-size: 12px;margin:10px">
-                    <p>${carInfo.description}</p>
-                  </div>
-                  <div style="text-align: center;font-size:15px">
-                  		<table style="text-align: center;width: 100%">
-                  			<tr>
-                  				<td>
-                        			<p>Price</p>
-                  				</td>
-                  				<td>
-                  					<p style="font-weight: bold; color: green;">$ ${carInfo.price[0].USD}</p>
-                  				</td>
-                  			</tr>
-                  			<tr>
-                  				<td>
-                        			<p>Shipment Price</p>
-                  				</td>
-                  				<td>
-                  					<p style="font-weight: bold; color: green;">$1200USD</p>
-                  				</td>
-                  			</tr>
-                  			<tr>
-                  				<td>
-                        			<p>Date</p>
-                  				</td>
-                  				<td>
-                  					<p>${carInfo.build_year}</p>
-                  				</td>
-                  			</tr>
-                  			<tr>
-                  				<td>
-                        			<p>BodyType</p>
-                  				</td>
-                  				<td>
-                  					<p>${carInfo.body_type}</p>
-                  				</td>
-                  			</tr>
-                  			<tr>
-                  				<td>
-                        			<p>Odometer</p>
-                  				</td>
-                  				<td>
-                  					<p>${carInfo.odometer}</p>
-                  				</td>
-                  			</tr>
-                  			<tr>
-                  				<td>
-                        			<p>Engine</p>
-                  				</td>
-                  				<td>
-                  					<p>${carInfo.engine_size} ${carInfo.engine_size_unit}</p>
-                  				</td>
-                  			</tr>
-                  			<tr>
-                  				<td>
-                        			<p>Location</p>
-                  				</td>
-                  				<td>
-                  					<p>${carInfo.location}</p>
-                  				</td>
-                  			</tr>
-                  			<tr>
-                  				<td>
-                        			<p>Seat</p>
-                  				</td>
-                  				<td>
-                  					<p>${carInfo.seat}</p>
-                  				</td>
-                  			</tr>
-                  			<tr>
-                  				<td>
-                        			<p>Door</p>
-                  				</td>
-                  				<td>
-                  					<p>${carInfo.door}</p>
-                  				</td>
-                  			</tr>
-                  			<tr>
-                  				<td>
-                        			<p>Vin</p>
-                  				</td>
-                  				<td>
-                  					<p>${carInfo.vin}</p>
-                  				</td>
-                  			</tr>
-
-                  		</table>
-                  	</div>
-                </td>
-              </tr>
-            </table>
-              
-          </body>
-        </html>
+		<html>
+		<style>
+		.carItem-left{
+			float: left;
+			width: 50%;
+			height: 30px;
+		  }
+		  .carItem-right{
+			float: right;
+			width: 50%;
+			
+			height: 30px;
+		  }
+		  p{
+			/* margin: 2px!important; */
+		  }
+		  .normalP{
+			  font-size: 16px;
+			  margin-top: 10px;
+		  }
+		  .mailline{
+			  width: 100%;
+			  margin: 5px;
+		  }
+		 
+		</style>
+	  <body>
+		<div class="mailline">
+			<p class="normalP">Dear ${userInfo.name}</p>
+		</div>
+		<div class="mailline">
+			<p class="normalP">${carInfo.make} ${carInfo.model} ${carInfo.year} is ready for your purchase</p>
+			<p class="normalP">The total shipment price is US$3,500.</p>
+		</div>
+		<div class="mailline">
+			<img width="300" src="${carInfo.images[0]}"/>
+		</div>
+		
+		<div class="mailline">
+				<table style="width: 100%">
+					<tr>
+						<td>
+							<p class="itemname">BodyType</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.body_type}</p>
+						</td>
+						<td>
+							<p class="itemname">BuildYear</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.build_year}</p>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<p class="itemname">Color</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.color}</p>
+						</td>
+						<td>
+							<p class="itemname">Cylinders</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.cylinders}</p>
+						</td>
+					</tr>
+					<tr>
+						
+						<td>
+							<p class="itemname">Door</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.door}</p>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<p class="itemname">Drive</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.drive}</p>
+						</td>
+						<td>
+							<p class="itemname">Engine</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.engine_size} ${carInfo.engine_size_unit}</p>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<p class="itemname">Fuel</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.fuel}</p>
+						</td>
+						<td>
+							<p class="itemname">Gear</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.gear}</p>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<p class="itemname">Odometer</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.odometer}</p>
+						</td>
+						<td>
+							<p class="itemname">Price</p>
+						</td>
+						<td>
+							<p class="itemvalue">US$ ${carInfo.price[0].USD}</p>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<p class="itemname">Seat</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.seat}</p>
+						</td>
+						<td>
+							<p class="itemname">Transmission</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.transmission}</p>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<p class="itemname">Variant</p>
+						</td>
+						<td>
+							<p class="itemvalue">${carInfo.variant}</p>
+						</td>
+				</table>
+						
+		</div>
+	   <div class="mailline">
+		   <p class="itemvalue">${carInfo.description}</p>
+			<p class="normalP">Total Price: Price(US$ ${carInfo.price[0].USD}) + ShipmentPrice(US$3,500) =  US$${carInfo.price[0].USD + 3500}</p>
+			<p class="normalP">Please ask for invoice if you would like to continue with the purchase.</p>
+		</div>
+	  </body>
+	</html>
         `
           let existUserInquiry = await Inquiry.findOne({
             user:uid,
